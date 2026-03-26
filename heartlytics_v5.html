@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heartlytics ♥</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink:#FF6B9D; --pink-light:#FF9EC4; --pink-pale:#FFF0F6;
+  --pink-deep:#E8458A; --amber:#FFB347; --yellow:#FFD93D;
+  --cream:#FFF8FC; --ink:#2D1218; --muted:#9A6878;
+  --border:#FDDAEC; --green:#6BCB77; --purple:#C77DFF;
+  --card:#FFFFFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Fredoka',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+/* ── ANIMATED BG ── */
+.bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(1px);}
+.bg-orb:nth-child(1){width:380px;height:380px;background:rgba(255,107,157,0.13);top:-120px;left:-120px;animation:drift 15s ease-in-out infinite;}
+.bg-orb:nth-child(2){width:240px;height:240px;background:rgba(255,179,71,0.1);top:35%;right:-80px;animation:drift 20s ease-in-out infinite;animation-delay:-7s;}
+.bg-orb:nth-child(3){width:300px;height:300px;background:rgba(199,125,255,0.08);bottom:-80px;left:25%;animation:drift 17s ease-in-out infinite;animation-delay:-11s;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(24px,-18px) scale(1.05);}66%{transform:translate(-14px,24px) scale(0.96);}}
+
+/* floating confetti */
+.confetti-layer span{position:absolute;opacity:0;animation:riseUp linear infinite;user-select:none;pointer-events:none;}
+@keyframes riseUp{0%{opacity:0;transform:translateY(0) rotate(0deg);}8%{opacity:1;}85%{opacity:0.6;}100%{opacity:0;transform:translateY(-110vh) rotate(360deg);}}
+
+/* ── WRAP ── */
+.wrap{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 20px 80px;}
+
+/* ── SPLASH ── */
+#splash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;max-width:560px;padding:40px 0;}
+
+/* V3 mascot with star decorations */
+.mascot-zone{position:relative;margin-bottom:4px;width:200px;height:190px;display:flex;align-items:center;justify-content:center;}
+.mascot-zone svg.main-mascot{animation:bigFloat 3.8s ease-in-out infinite;}
+@keyframes bigFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-11px);}}
+.deco-star{position:absolute;animation:spinStar linear infinite;}
+.deco-star.s1{top:8px;left:10px;animation-duration:6s;}
+.deco-star.s2{top:5px;right:15px;animation-duration:9s;animation-direction:reverse;}
+.deco-dot{position:absolute;border-radius:50%;}
+.deco-squig{position:absolute;}
+
+/* logo wordmark — v3 style: all pink, fredoka, large */
+.logo-wordmark{font-size:58px;font-weight:700;color:var(--pink);letter-spacing:-1.5px;line-height:1;margin-bottom:4px;position:relative;}
+.logo-wordmark::after{content:'✦';position:absolute;font-size:14px;top:6px;right:-18px;color:var(--amber);animation:twinkle 2s ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+.logo-sub{font-size:14px;font-weight:400;color:var(--muted);margin-bottom:8px;letter-spacing:0.2px;}
+.logo-pill{display:inline-block;background:var(--pink-pale);border:1.5px solid var(--border);border-radius:50px;padding:4px 16px;font-size:12px;font-weight:600;color:var(--pink);margin-bottom:32px;letter-spacing:0.3px;}
+
+.name-row{display:flex;align-items:center;background:white;border:2.5px solid var(--border);border-radius:50px;padding:6px 6px 6px 22px;width:100%;max-width:380px;margin-bottom:16px;transition:border-color .2s,box-shadow .2s;box-shadow:0 6px 24px rgba(255,107,157,.12);}
+.name-row:focus-within{border-color:var(--pink);box-shadow:0 6px 28px rgba(255,107,157,.25);}
+.name-row label{font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap;margin-right:8px;}
+.name-row input{flex:1;border:none;outline:none;font-family:'Fredoka',sans-serif;font-size:16px;font-weight:500;color:var(--ink);background:transparent;}
+.name-row input::placeholder{color:#E8CEDE;}
+
+.btn-start{background:var(--pink);color:white;border:none;padding:16px 48px;border-radius:50px;font-family:'Fredoka',sans-serif;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(255,107,157,.4);transition:all .25s;letter-spacing:0.2px;}
+.btn-start:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 14px 36px rgba(255,107,157,.5);}
+
+.splash-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:28px;}
+.splash-pill{background:white;border:1.5px solid var(--border);border-radius:50px;padding:5px 14px;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;}
+.splash-pill:hover{border-color:var(--pink);color:var(--pink);}
+
+/* ── QUIZ ── */
+#quiz{display:none;width:100%;max-width:640px;padding-top:32px;}
+#quiz.active{display:block;}
+.quiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.quiz-step{font-size:13px;font-weight:600;color:var(--muted);}
+.quiz-who{font-size:13px;font-weight:600;color:var(--pink);}
+.prog-track{width:100%;height:8px;background:var(--border);border-radius:50px;margin-bottom:28px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--pink),var(--amber));transition:width .65s cubic-bezier(.4,0,.2,1);position:relative;}
+.prog-fill::after{content:'';position:absolute;top:0;right:-4px;width:28px;height:100%;background:rgba(255,255,255,.55);animation:shim 1.8s ease-in-out infinite;border-radius:0 50px 50px 0;}
+@keyframes shim{0%,100%{opacity:0;}50%{opacity:1;}}
+
+.lang-card{background:white;border-radius:28px;padding:28px 30px 32px;box-shadow:0 10px 48px rgba(255,107,157,.12);margin-bottom:20px;animation:popIn .48s cubic-bezier(.34,1.56,.64,1) both;border:1.5px solid var(--border);}
+@keyframes popIn{from{opacity:0;transform:scale(.92) translateY(18px);}to{opacity:1;transform:scale(1) translateY(0);}}
+
+.lang-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.lang-icon-box{width:50px;height:50px;border-radius:14px;background:var(--pink-pale);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.lang-chip{font-size:12px;font-weight:600;color:var(--muted);background:var(--pink-pale);padding:4px 12px;border-radius:50px;}
+.lang-name{font-size:24px;font-weight:700;color:var(--ink);margin:10px 0 2px;}
+.lang-tagline{font-size:14px;font-weight:400;color:var(--muted);margin-bottom:16px;line-height:1.4;}
+
+/* attributed quote */
+.lang-quote-wrap{background:var(--pink-pale);border-left:3px solid var(--pink-light);border-radius:0 14px 14px 0;padding:12px 16px;margin-bottom:26px;}
+.lang-quote-text{font-size:13.5px;font-weight:400;color:var(--pink-deep);font-style:italic;line-height:1.55;margin-bottom:5px;}
+.lang-quote-attr{font-size:11px;font-weight:600;color:var(--pink-light);letter-spacing:0.05em;}
+
+.divider{height:1px;background:#FFF0F6;margin:18px 0;}
+
+.q-block{animation:fadeQ .3s ease both;}
+@keyframes fadeQ{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.q-num{font-size:11px;font-weight:700;color:var(--pink-light);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.q-text{font-size:15px;font-weight:500;line-height:1.55;color:var(--ink);margin-bottom:14px;}
+.scale-ends{display:flex;justify-content:space-between;padding:0 2px;margin-bottom:5px;}
+.scale-end{font-size:10px;font-weight:600;color:#C8A8B8;}
+
+.thin-scale{display:flex;gap:5px;}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;border:1.5px solid #F8E4EE;border-radius:13px;background:#FFFAFC;cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);font-family:'Fredoka',sans-serif;}
+.tb .te{font-size:18px;line-height:1;transition:transform .2s;}
+.tb .tn{font-size:10px;font-weight:600;color:#D4AABB;}
+.tb:hover{border-color:var(--pink-light);background:var(--pink-pale);transform:translateY(-4px) scale(1.06);}
+.tb:hover .te{transform:scale(1.25);}
+.tb.sel{border-color:var(--pink);background:var(--pink-pale);box-shadow:0 5px 16px rgba(255,107,157,.25);transform:translateY(-5px) scale(1.08);}
+.tb.sel .tn{color:var(--pink);}
+
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;}
+.btn-back{background:transparent;border:2px solid var(--border);color:var(--muted);padding:11px 24px;border-radius:50px;font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-back:hover{border-color:var(--muted);color:var(--ink);}
+.btn-next{background:var(--pink);color:white;border:none;padding:13px 38px;border-radius:50px;font-family:'Fredoka',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 22px rgba(255,107,157,.35);transition:all .22s;}
+.btn-next:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(255,107,157,.45);}
+
+/* ── RESULTS ── */
+#results{display:none;width:100%;max-width:680px;padding-top:36px;}
+#results.active{display:block;animation:popIn .65s cubic-bezier(.34,1.56,.64,1) both;}
+
+.res-logo{text-align:center;margin-bottom:26px;}
+.res-logo-name{font-size:32px;font-weight:700;color:var(--pink);letter-spacing:-0.5px;}
+.res-logo-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+
+/* score hero */
+.score-hero{border-radius:28px;padding:34px 30px 26px;text-align:center;margin-bottom:20px;background:linear-gradient(145deg,var(--pink),#FF8FAB);position:relative;overflow:hidden;}
+.score-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 28% -5%,rgba(255,255,255,.22) 0%,transparent 55%);}
+.hero-mascot-small{display:flex;justify-content:center;margin-bottom:10px;animation:bigFloat 3.8s ease-in-out infinite;}
+.sh-label{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:6px;}
+.sh-num{font-size:82px;font-weight:700;color:white;line-height:1;letter-spacing:-3px;}
+.sh-num span{font-size:34px;opacity:.65;}
+.sh-rating{font-size:25px;font-weight:700;color:white;margin:5px 0;}
+.sh-refl{font-size:15px;color:rgba(255,255,255,.9);line-height:1.6;font-style:italic;max-width:460px;margin:8px auto 0;font-weight:400;}
+
+/* insight row */
+.insight-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+@media(max-width:480px){.insight-row{grid-template-columns:1fr;}}
+.ins-card{background:white;border-radius:20px;padding:18px 20px;border:1.5px solid var(--border);box-shadow:0 4px 18px rgba(255,107,157,.07);}
+.ins-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.ins-lang{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.ins-note{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+.ll-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:20px;}
+@media(max-width:480px){.ll-grid{grid-template-columns:1fr;}}
+.ll-tile{background:white;border-radius:20px;padding:18px 20px;border:1.5px solid var(--border);box-shadow:0 4px 16px rgba(255,107,157,.05);transition:transform .2s,box-shadow .2s;}
+.ll-tile:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,107,157,.1);}
+.ll-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.ll-icon{font-size:26px;}
+.ll-score{font-size:27px;font-weight:700;}
+.ll-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+.ll-rating{font-size:14px;font-weight:600;margin-bottom:8px;}
+.ll-bar-bg{height:5px;background:#FDDAEC;border-radius:50px;overflow:hidden;margin-bottom:10px;}
+.ll-bar{height:100%;border-radius:50px;width:0%;transition:width 1.3s cubic-bezier(.4,0,.2,1);}
+.ll-refl{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;}
+
+/* FINAL WORD — deeper card */
+.final-card{background:var(--ink);border-radius:26px;padding:32px 32px 28px;color:white;margin-bottom:20px;}
+.final-eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.final-title{font-size:clamp(20px,3.8vw,28px);font-weight:700;color:var(--amber);line-height:1.3;margin-bottom:14px;}
+.final-body{font-size:14.5px;color:rgba(255,255,255,.8);line-height:1.75;font-weight:400;margin-bottom:18px;}
+.final-questions{border-top:1px solid rgba(255,255,255,.12);padding-top:16px;margin-top:4px;}
+.final-q-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--pink-light);margin-bottom:12px;}
+.final-q{font-size:14px;color:rgba(255,255,255,.75);line-height:1.65;padding:10px 0 10px 16px;border-left:2px solid var(--pink);margin-bottom:8px;font-style:italic;}
+.final-q:last-child{margin-bottom:0;}
+
+/* Download button */
+.download-section{background:white;border-radius:22px;padding:24px 28px;border:1.5px solid var(--border);margin-bottom:20px;text-align:center;box-shadow:0 4px 18px rgba(255,107,157,.07);}
+.dl-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.dl-sub{font-size:13px;color:var(--muted);margin-bottom:16px;font-weight:400;line-height:1.5;}
+.btn-download{background:var(--pink);color:white;border:none;padding:13px 36px;border-radius:50px;font-family:'Fredoka',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 22px rgba(255,107,157,.3);transition:all .22s;display:inline-flex;align-items:center;gap:8px;}
+.btn-download:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(255,107,157,.42);}
+.btn-download:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.dl-hint{font-size:11px;color:var(--muted);margin-top:10px;font-style:italic;}
+
+.restart-btn{display:block;margin:0 auto;background:transparent;border:2px solid var(--border);color:var(--muted);padding:11px 32px;border-radius:50px;font-family:'Fredoka',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.restart-btn:hover{border-color:var(--pink);color:var(--pink);}
+
+/* ── REPORT CANVAS (hidden, for download) ── */
+#reportCanvas{display:none;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--ink);color:white;padding:11px 24px;border-radius:50px;font-family:'Fredoka',sans-serif;font-size:14px;font-weight:600;z-index:999;transition:transform .38s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 8px 24px rgba(45,18,24,.25);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="bg-wrap">
+  <div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div>
+  <div class="confetti-layer" id="confettiLayer"></div>
+</div>
+<div class="wrap">
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <!-- V3 mascot: hot pink heart with blinky face + decorations -->
+  <div class="mascot-zone">
+    <!-- spinning star top-left -->
+    <svg class="deco-star s1" width="28" height="28" viewBox="0 0 28 28" style="position:absolute;top:6px;left:4px;">
+      <path d="M14,2 L16.5,11.5 L26,14 L16.5,16.5 L14,26 L11.5,16.5 L2,14 L11.5,11.5 Z" fill="#FFB347" opacity="0.9"/>
+    </svg>
+    <!-- spinning star top-right -->
+    <svg class="deco-star s2" width="22" height="22" viewBox="0 0 22 22" style="position:absolute;top:4px;right:12px;">
+      <path d="M11,1 L13,9 L21,11 L13,13 L11,21 L9,13 L1,11 L9,9 Z" fill="#FF8FAB" opacity="0.85"/>
+    </svg>
+    <!-- dots -->
+    <div class="deco-dot" style="width:8px;height:8px;background:#FF6B9D;opacity:.65;top:44px;left:8px;"></div>
+    <div class="deco-dot" style="width:6px;height:6px;background:#FFB347;opacity:.7;top:36px;right:18px;"></div>
+    <div class="deco-dot" style="width:5px;height:5px;background:#A8E6CF;opacity:.8;bottom:40px;left:12px;"></div>
+    <!-- squiggle left -->
+    <svg class="deco-squig" style="position:absolute;bottom:52px;left:2px;" width="36" height="14" viewBox="0 0 36 14">
+      <path d="M2,7 Q6,1 10,7 Q14,13 18,7 Q22,1 26,7 Q30,13 34,7" fill="none" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <!-- squiggle right -->
+    <svg class="deco-squig" style="position:absolute;bottom:48px;right:0px;" width="30" height="12" viewBox="0 0 30 12">
+      <path d="M2,6 Q6,1 10,6 Q14,11 18,6 Q22,1 26,6" fill="none" stroke="#FF8FAB" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Main mascot SVG — hot pink, blinky eyes, face, bar chart -->
+    <svg class="main-mascot" width="155" height="145" viewBox="0 0 310 290" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        @keyframes blinkEye{0%,88%,100%{transform:scaleY(1);}92%,96%{transform:scaleY(0.08);}}
+        .leye{transform-origin:96px 138px;animation:blinkEye 4.5s ease-in-out infinite;}
+        .reye{transform-origin:180px 138px;animation:blinkEye 4.5s ease-in-out infinite;animation-delay:.08s;}
+      </style>
+      <!-- heart drop shadow -->
+      <path d="M158,268 C158,268 68,212 40,174 C12,136 16,82 52,66 C82,52 116,70 136,98 C142,108 148,122 158,140 C168,122 174,108 180,98 C200,70 234,52 264,66 C300,82 304,136 276,174 C248,212 158,268 158,268Z" fill="#E8458A" opacity="0.18" transform="translate(5,9)"/>
+      <!-- heart body -->
+      <path d="M155,264 C155,264 65,208 37,170 C9,132 13,78 49,62 C79,48 113,66 133,94 C139,104 145,118 155,136 C165,118 171,104 177,94 C197,66 231,48 261,62 C297,78 301,132 273,170 C245,208 155,264 155,264Z" fill="#FF6B9D"/>
+      <!-- inner highlight -->
+      <path d="M96,80 C108,68 126,64 138,72" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" opacity="0.35"/>
+      <!-- eyes white -->
+      <g class="leye"><ellipse cx="112" cy="138" rx="18" ry="20" fill="white"/></g>
+      <g class="reye"><ellipse cx="196" cy="138" rx="18" ry="20" fill="white"/></g>
+      <!-- pupils -->
+      <ellipse cx="116" cy="141" rx="10" ry="12" fill="#2D1218"/>
+      <ellipse cx="200" cy="141" rx="10" ry="12" fill="#2D1218"/>
+      <!-- eye glints -->
+      <circle cx="121" cy="136" r="3.5" fill="white"/>
+      <circle cx="205" cy="136" r="3.5" fill="white"/>
+      <!-- cheeks -->
+      <ellipse cx="82" cy="165" rx="16" ry="9" fill="#FF9EC4" opacity="0.45"/>
+      <ellipse cx="224" cy="165" rx="16" ry="9" fill="#FF9EC4" opacity="0.45"/>
+      <!-- smile -->
+      <path d="M128,182 Q155,200 182,182" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      <!-- mini bar chart on chest -->
+      <rect x="130" y="210" width="11" height="24" rx="4" fill="white" opacity="0.38"/>
+      <rect x="146" y="202" width="11" height="32" rx="4" fill="white" opacity="0.58"/>
+      <rect x="162" y="193" width="11" height="41" rx="4" fill="white" opacity="0.88"/>
+      <rect x="178" y="206" width="11" height="28" rx="4" fill="white" opacity="0.48"/>
+    </svg>
+  </div>
+
+  <div class="logo-wordmark">heartlytics</div>
+  <div class="logo-sub">powered by love & a little data</div>
+  <div class="logo-pill">a love check-in ✨</div>
+
+  <div class="name-row">
+    <label>for ✦</label>
+    <input type="text" id="partnerName" placeholder="your partner's name..." maxlength="24">
+  </div>
+  <button class="btn-start" onclick="startQuiz()">let's begin 💕</button>
+  <div class="splash-pills">
+    <span class="splash-pill">💬 words</span>
+    <span class="splash-pill">🤝 service</span>
+    <span class="splash-pill">🎁 gifts</span>
+    <span class="splash-pill">⏳ time</span>
+    <span class="splash-pill">🤗 touch</span>
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div id="quiz">
+  <div class="quiz-top">
+    <span class="quiz-step" id="stepLabel">language 1 of 5</span>
+    <span class="quiz-who" id="nameLabel"></span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div id="langCard"></div>
+  <div class="quiz-nav">
+    <button class="btn-back" id="backBtn" onclick="goBack()">← back</button>
+    <button class="btn-next" id="nextBtn" onclick="goNext()">next →</button>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div id="results"></div>
+
+</div><!-- end wrap -->
+<div class="toast" id="toast">please answer all questions first 💕</div>
+<canvas id="reportCanvas"></canvas>
+
+<script>
+/* ── floating confetti ── */
+(function(){
+  const layer=document.getElementById('confettiLayer');
+  const chars=['♡','♥','✦','·','✿','★','◇'];
+  const colors=['rgba(255,107,157,VAL)','rgba(255,179,71,VAL)','rgba(199,125,255,VAL)','rgba(107,203,119,VAL)'];
+  for(let i=0;i<22;i++){
+    const s=document.createElement('span');
+    s.textContent=chars[i%chars.length];
+    const c=colors[i%colors.length].replace('VAL',(0.08+Math.random()*0.16).toFixed(2));
+    s.style.cssText=`left:${Math.random()*100}%;top:${100+Math.random()*15}%;font-size:${10+Math.random()*16}px;color:${c};animation-duration:${10+Math.random()*14}s;animation-delay:-${Math.random()*14}s;`;
+    layer.appendChild(s);
+  }
+})();
+
+/* ── DATA ── */
+const LANGS=[
+  {key:'words',icon:'💬',name:'Words of Affirmation',tagline:'how they speak love into existence',
+   quote:{text:'The most precious gift we can offer anyone is our attention. When mindfulness embraces those we love, they will bloom like flowers.',author:'Thich Nhat Hanh'},
+   color:'#FF6B9D',
+   questions:[
+    'How often does your partner express genuine appreciation for what you do — the big gestures and the small ones?',
+    'When you\'re going through something hard, does your partner find words that actually land — not just generic comfort?',
+    'Does your partner speak warmly about you to others — friends, family, anyone in their world?',
+    'How often do you receive unprompted compliments or sweet words, without having to ask first?',
+    'When something bothers your partner, do they express it kindly rather than going cold or distant?',
+    'Does your partner check in on you emotionally — asking how you\'re really doing, not just how your day went?',
+  ]},
+  {key:'service',icon:'🤝',name:'Acts of Service',tagline:'love in what they do, not just what they say',
+   quote:{text:'The best way to find yourself is to lose yourself in the service of others.',author:'Mahatma Gandhi'},
+   color:'#FF8C69',
+   questions:[
+    'When you\'re clearly overwhelmed, does your partner step in and handle something without being asked?',
+    'Does your partner consistently follow through on the things they say they\'ll do — no matter how small?',
+    'How often does your partner do things to make your day genuinely easier, not for praise but just because they care?',
+    'When your partner is doing a task they know you dislike, do they offer to take it off your plate?',
+    'Does your partner anticipate your needs before you even voice them?',
+    'Does your partner show up reliably during your stressful seasons — not only when things are easy and light?',
+  ]},
+  {key:'gifts',icon:'🎁',name:'Receiving Gifts',tagline:'thoughtfulness you can hold in your hands',
+   quote:{text:'We are most alive in those moments when our hearts are conscious of our treasures.',author:'Thornton Wilder'},
+   color:'#FFB347',
+   questions:[
+    'When your partner gives you something — a gift, a note, anything — does it feel made specifically for you?',
+    'Does your partner remember and honour important dates and milestones that matter to you?',
+    'Do little surprise gestures show up in your relationship — a favourite snack, a "saw this and thought of you"?',
+    'Does your partner put real effort into celebrations, or do they quietly pass without much acknowledgment?',
+    'When you mention something you like in passing, does your partner actually remember and act on it later?',
+    'Does your partner give in ways that show they\'ve been paying attention — not just grabbing what\'s convenient?',
+  ]},
+  {key:'time',icon:'⏳',name:'Quality Time',tagline:'presence is the greatest present',
+   quote:{text:'I have only one request. I do not ask for money. All I ask is that you make time.',author:'Rumi'},
+   color:'#6BCB77',
+   questions:[
+    'When you spend time together, how present is your partner — genuinely engaged, not mentally elsewhere?',
+    'How often does your partner initiate quality time, rather than always waiting for you to suggest it?',
+    'Does your partner create space for real conversation — "how are you actually doing" talks, not just logistics?',
+    'When you need them, does your partner set aside what they\'re doing and show up fully for you?',
+    'Does your partner plan or put thought into things you do together — dates, activities, shared moments?',
+    'After time together, do you feel genuinely closer — not just like you happened to occupy the same space?',
+  ]},
+  {key:'touch',icon:'🤗',name:'Physical Touch',tagline:'connection you can feel',
+   quote:{text:'Touch has a memory. More tenderness than all these things.',author:'John Keats'},
+   color:'#C77DFF',
+   questions:[
+    'Does your partner use touch naturally as connection — a hand on your back, sitting close, casual warmth?',
+    'When you\'re visibly stressed or upset, is your partner\'s first instinct to offer physical comfort?',
+    'How safe, held, and at ease do you feel in your partner\'s physical presence?',
+    'Does your partner initiate affectionate touch — hugs, warmth — without it needing to lead anywhere else?',
+    'During difficult moments between you two, does your partner use touch to reassure rather than withdraw?',
+    'Does your partner\'s physical presence alone — just being near them — make you feel calmer or more at home?',
+  ]},
+];
+
+const EMOJIS=['😶','🙁','😐','🙂','😍'];
+const scores={};
+let currentLang=0, partnerName='', finalAvgs={};
+
+function startQuiz(){
+  partnerName=document.getElementById('partnerName').value.trim()||'your partner';
+  LANGS.forEach(l=>{scores[l.key]=new Array(l.questions.length).fill(null);});
+  document.getElementById('splash').style.display='none';
+  document.getElementById('quiz').classList.add('active');
+  document.getElementById('nameLabel').textContent=partnerName;
+  renderLang(0);
+}
+
+function renderLang(idx){
+  currentLang=idx;
+  const lang=LANGS[idx];
+  document.getElementById('progFill').style.width=(idx/LANGS.length*100)+'%';
+  document.getElementById('stepLabel').textContent=`language ${idx+1} of ${LANGS.length}`;
+  document.getElementById('backBtn').style.visibility=idx===0?'hidden':'visible';
+  document.getElementById('nextBtn').textContent=idx===LANGS.length-1?'✨ see my results':'next →';
+
+  const card=document.getElementById('langCard');
+  card.innerHTML='';
+  const div=document.createElement('div');
+  div.className='lang-card';
+  div.style.borderTop=`4px solid ${lang.color}`;
+
+  let html=`<div class="lang-head">
+    <div class="lang-icon-box">${lang.icon}</div>
+    <div class="lang-chip">${idx+1} / ${LANGS.length}</div>
+  </div>
+  <div class="lang-name">${lang.name}</div>
+  <div class="lang-tagline">${lang.tagline}</div>
+  <div class="lang-quote-wrap">
+    <div class="lang-quote-text">"${lang.quote.text}"</div>
+    <div class="lang-quote-attr">— ${lang.quote.author}</div>
+  </div>`;
+
+  lang.questions.forEach((q,qi)=>{
+    const saved=scores[lang.key][qi];
+    const personalised=q.replace(/your partner/g, partnerName);
+    const btns=EMOJIS.map((e,ei)=>{
+      const val=ei+1;
+      const lbl=['not really','a little','sometimes','mostly','always'][ei];
+      const sel=saved===val?'sel':'';
+      return `<button class="tb ${sel}" onclick="pick('${lang.key}',${qi},${val},this)" title="${val} — ${lbl}"><span class="te">${e}</span><span class="tn">${val}</span></button>`;
+    }).join('');
+    html+=`<div class="q-block" style="animation-delay:${qi*.04}s">
+      <div class="q-num">question ${qi+1}</div>
+      <div class="q-text">${personalised}</div>
+      <div class="scale-ends"><span class="scale-end">1 — not really</span><span class="scale-end">5 — always</span></div>
+      <div class="thin-scale" id="sc-${lang.key}-${qi}">${btns}</div>
+    </div>${qi<lang.questions.length-1?'<div class="divider"></div>':''}`;
+  });
+
+  div.innerHTML=html;
+  card.appendChild(div);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(lk,qi,val,btn){
+  scores[lk][qi]=val;
+  document.getElementById(`sc-${lk}-${qi}`).querySelectorAll('.tb').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function goNext(){
+  const u=scores[LANGS[currentLang].key].findIndex(v=>v===null);
+  if(u!==-1){toast(`answer question ${u+1} first 💕`);return;}
+  if(currentLang<LANGS.length-1)renderLang(currentLang+1);
+  else showResults();
+}
+function goBack(){if(currentLang>0)renderLang(currentLang-1);}
+
+/* ── SCORING ── */
+function avg(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
+function overall(avgs){return Object.values(avgs).reduce((a,b)=>a+b,0)/Object.values(avgs).length;}
+function getRating(s){
+  if(s>=4.5)return{label:'exceptional 🌟',color:'#6BCB77'};
+  if(s>=3.8)return{label:'excellent 💛',color:'#FF8C69'};
+  if(s>=3.0)return{label:'pretty good 🌸',color:'#FF6B9D'};
+  if(s>=2.0)return{label:'developing 🌱',color:'#C77DFF'};
+  return{label:'needs love 💔',color:'#E8458A'};
+}
+
+function getOverallRefl(s,name){
+  if(s>=4.7)return`${name} is the kind of partner people write songs about. You already know it — but it's worth saying out loud, properly.`;
+  if(s>=4.3)return`Honestly? This is what a genuinely good thing looks like. Hold onto it tightly, and hold onto each other.`;
+  if(s>=3.8)return`${name} really does show up for you. The foundation is strong — keep watering it every single day.`;
+  if(s>=3.3)return`There's real love here. A few honest, kind conversations could turn "good" into something genuinely great.`;
+  if(s>=2.8)return`The love is there, but it might be getting lost in translation. Try telling them what you actually need.`;
+  if(s>=2.3)return`It's not broken — but it's a little dusty. A proper heart-to-heart might be exactly what this needs right now.`;
+  if(s>=1.8)return`Some real gaps here. This deserves a gentle, honest conversation — not a fight, just a real talk over tea.`;
+  if(s>=1.3)return`Love is supposed to feel like something. You deserve to feel it — fully and without question.`;
+  return`Be really honest with yourself here. You deserve a love that actually shows up for you, always.`;
+}
+
+const LL_REFL={
+  words:{5:"They make you feel seen with words, consistently. That's genuinely rare — don't take it lightly.",4:"They express love verbally and it lands. Keep the conversation going, even when things feel easy.",3:"They try to affirm you, though it can be uneven. A gentle reminder helps more than you'd think.",2:"Words aren't flowing naturally. Try telling them exactly what you need to hear — they may not know.",1:"Verbal affirmation feels absent here. This is worth a real, kind, unhurried conversation."},
+  service:{5:"They don't wait to be asked — they see it and handle it. That's love as action. Acknowledge it.",4:"Reliable and consistent with the little things. Being counted on like that is quietly beautiful.",3:"They show up through action sometimes, but it isn't yet a reflex. The intention is there, which matters.",2:"Follow-through could be a lot stronger. Being explicit about what support looks like for you may help.",1:"Actions and words aren't matching yet. A loving, direct, open conversation is genuinely overdue."},
+  gifts:{5:"Every gesture feels personal — like they've been quietly paying attention all along. That's special.",4:"They notice what you love and act on it. The thoughtfulness here is real, not performative.",3:"Big moments get effort; everyday thoughtfulness still has room to grow and deepen.",2:"Gestures are occasional. Sharing what makes you feel remembered could gently shift something here.",1:"This dimension feels largely missing. Not a dealbreaker by itself, but it absolutely deserves mention."},
+  time:{5:"When they're with you, they're truly with you. That kind of presence is rarer than people realise.",4:"Quality time is consistent and intentional — you can feel the difference when you're together.",3:"They value time with you, but presence can drift. Small phone-free rituals can do a lot.",2:"Truly present time is rare. Carving out real, distraction-free moments could be quietly transformative.",1:"Presence feels like a real, significant gap. This one needs an honest, caring, open conversation."},
+  touch:{5:"Physical warmth is second nature to them — you feel held, safe, and genuinely close.",4:"They use touch naturally to comfort and connect. You never have to wonder where you stand.",3:"Affectionate touch is present but could be more instinctive, especially in harder moments.",2:"Physical comfort isn't their default response. They may simply need encouragement to lean into it.",1:"Touch feels like an area of real distance. Worth exploring gently — no pressure, just honesty."},
+};
+function getTileRefl(key,s){return LL_REFL[key][Math.max(1,Math.min(5,Math.round(s)))];}
+
+/* deeper final word with introspective questions */
+function getFinalWord(s,avgs,name){
+  const sorted=Object.entries(avgs).sort((a,b)=>b[1]-a[1]);
+  const top=LANGS.find(l=>l.key===sorted[0][0]);
+  const bot=LANGS.find(l=>l.key===sorted[sorted.length-1][0]);
+  const topScore=sorted[0][1];
+  const botScore=sorted[sorted.length-1][1];
+
+  let title,body,questions;
+
+  if(s>=4.5){
+    title=`${name} gets the gold star 🏆`;
+    body=`Across every dimension of love, ${name} is showing up — and not just showing up, but actually landing. That's rare. You're not just in a relationship, you're in a love that functions. The kind that makes the people around you quietly envious. ${top.name} is where they're outstanding (${topScore.toFixed(1)}/5), and honestly, even their lowest score (${bot.name}, ${botScore.toFixed(1)}/5) shows someone who's genuinely trying. The question worth sitting with isn't "is this good?" You already know it is. It's: are you appreciating it loudly enough?`;
+    questions=[
+      `When did you last tell ${name} specifically what they do that makes you feel the most loved?`,
+      `What's one thing ${name} does so naturally that you might have started taking it for granted?`,
+      `How are you showing up for them in the way they need most?`,
+    ];
+  } else if(s>=3.8){
+    title=`a genuinely solid person to love 🌟`;
+    body=`There's real substance here. ${name} shows up in meaningful ways — particularly in ${top.name}, where their score (${topScore.toFixed(1)}/5) reflects someone who genuinely tries. This isn't a relationship held together by habit or convenience; there's actual care at the root of it. The area worth a quiet conversation is ${bot.name} (${botScore.toFixed(1)}/5) — not because something is broken, but because even good things have room to grow. The best relationships aren't perfect, they're honest.`;
+    questions=[
+      `Have you told ${name} that you see them trying? Sometimes people pour in and wonder if it's landing.`,
+      `What would it look like if ${bot.name} improved by just one point — what would be different for you?`,
+      `Is there anything you've been holding back saying because things feel "good enough"?`,
+    ];
+  } else if(s>=3.0){
+    title=`good bones, real potential 📈`;
+    body=`There's love here — it's just living in some rooms more than others. ${name} is strong in ${top.name} (${topScore.toFixed(1)}/5), and that's not nothing — that's a real foundation. But the gap between that and ${bot.name} (${botScore.toFixed(1)}/5) suggests some needs are getting met beautifully while others are quietly going unheard. That's not unusual. Most relationships have it. The move isn't to panic — it's to have the conversation you've been putting off.`;
+    questions=[
+      `Do you think ${name} knows which love language matters most to you? Have you told them directly?`,
+      `What's one small, concrete thing that would make you feel more loved in ${bot.name}?`,
+      `When was the last time you both talked about what the relationship needs — not what's wrong, just what you both want more of?`,
+    ];
+  } else if(s>=2.0){
+    title=`love is there, just a little muffled 🌱`;
+    body=`Something real does exist here — it's just struggling to be heard clearly. A score of ${s.toFixed(1)}/5 doesn't mean the love isn't there; it means it might not be reaching you in the way you need it to. ${top.name} (${topScore.toFixed(1)}/5) is a real bright spot — hold onto that. But ${bot.name} (${botScore.toFixed(1)}/5) is a signal worth taking seriously. Not dramatically, but honestly. What you need to feel loved is not unreasonable. It's worth saying out loud.`;
+    questions=[
+      `Have you had a calm, clear conversation with ${name} about how you most feel loved — without it being part of an argument?`,
+      `What would you want ${name} to understand about you that they might not fully see right now?`,
+      `Is there a version of this relationship, with the right conversations, that feels genuinely good to you?`,
+    ];
+  } else {
+    title=`you deserve to feel loved, fully 💛`;
+    body=`A score of ${s.toFixed(1)}/5 is this tool's way of saying: some important things need attention here. This isn't a judgment on ${name} or on you — it's a mirror. Love, even real love, can get distant and confused and out of tune. Sometimes people simply don't know what the person in front of them needs. But sometimes they do, and they're choosing not to show up. Only you know which this is. Either way, you deserve clarity, and you deserve care.`;
+    questions=[
+      `What do you feel when you imagine asking for exactly what you need — and actually being heard?`,
+      `Has this always been the way things felt, or did something shift? When?`,
+      `What would you tell a close friend if they described their relationship the way you just described yours?`,
+    ];
+  }
+
+  return {title,body,questions};
+}
+
+/* ── MASCOT for results (inverted colours) ── */
+const MASCOT_RES=`<svg width="76" height="71" viewBox="0 0 310 290" xmlns="http://www.w3.org/2000/svg">
+  <path d="M155,264 C155,264 65,208 37,170 C9,132 13,78 49,62 C79,48 113,66 133,94 C139,104 145,118 155,136 C165,118 171,104 177,94 C197,66 231,48 261,62 C297,78 301,132 273,170 C245,208 155,264 155,264Z" fill="white"/>
+  <circle cx="112" cy="138" r="18" fill="#FF6B9D"/>
+  <circle cx="196" cy="138" r="18" fill="#FF6B9D"/>
+  <circle cx="116" cy="141" r="10" fill="white" opacity="0.85"/>
+  <circle cx="200" cy="141" r="10" fill="white" opacity="0.85"/>
+  <ellipse cx="82" cy="165" rx="15" ry="8" fill="white" opacity="0.3"/>
+  <ellipse cx="224" cy="165" rx="15" ry="8" fill="white" opacity="0.3"/>
+  <path d="M128,182 Q155,200 182,182" fill="none" stroke="#FF6B9D" stroke-width="5" stroke-linecap="round"/>
+</svg>`;
+
+function showResults(){
+  document.getElementById('quiz').style.display='none';
+  const el=document.getElementById('results');
+  el.classList.add('active');
+
+  const avgs={};
+  LANGS.forEach(l=>{avgs[l.key]=avg(scores[l.key]);});
+  finalAvgs=avgs;
+  const ov=overall(avgs);
+  const rat=getRating(ov);
+  const refl=getOverallRefl(ov,partnerName);
+  const fw=getFinalWord(ov,avgs,partnerName);
+
+  const sorted=Object.entries(avgs).sort((a,b)=>b[1]-a[1]);
+  const top=LANGS.find(l=>l.key===sorted[0][0]);
+  const bot=LANGS.find(l=>l.key===sorted[sorted.length-1][0]);
+
+  const tiles=LANGS.map(l=>{
+    const a=avgs[l.key],pct=(a/5*100).toFixed(0),r=getRating(a),rf=getTileRefl(l.key,a);
+    return `<div class="ll-tile"><div class="ll-top"><span class="ll-icon">${l.icon}</span><span class="ll-score" style="color:${l.color}">${a.toFixed(1)}</span></div><div class="ll-name">${l.name}</div><div class="ll-rating" style="color:${r.color}">${r.label}</div><div class="ll-bar-bg"><div class="ll-bar" data-pct="${pct}" style="background:${l.color}"></div></div><div class="ll-refl">${rf}</div></div>`;
+  }).join('');
+
+  const fqs=fw.questions.map(q=>`<div class="final-q">${q}</div>`).join('');
+
+  el.innerHTML=`
+    <div class="res-logo">
+      <div class="res-logo-name">heartlytics ♥</div>
+      <div class="res-logo-sub">love check-in for ${partnerName} ✨</div>
+    </div>
+    <div class="score-hero">
+      <div class="hero-mascot-small">${MASCOT_RES}</div>
+      <div class="sh-label">overall love score</div>
+      <div class="sh-num">${ov.toFixed(1)}<span> / 5</span></div>
+      <div class="sh-rating">${rat.label}</div>
+      <div class="sh-refl">"${refl}"</div>
+    </div>
+    <div class="insight-row">
+      <div class="ins-card"><div class="ins-label" style="color:${top.color}">💪 strongest</div><div class="ins-lang">${top.icon} ${top.name}</div><div class="ins-note">This is where ${partnerName} shines brightest. Let them know you notice.</div></div>
+      <div class="ins-card"><div class="ins-label" style="color:#C77DFF">🌱 opportunity</div><div class="ins-lang">${bot.icon} ${bot.name}</div><div class="ins-note">Not a flaw — just a conversation waiting to happen between you two.</div></div>
+    </div>
+    <div class="ll-grid">${tiles}</div>
+    <div class="final-card">
+      <div class="final-eyebrow">final word</div>
+      <div class="final-title">${fw.title}</div>
+      <div class="final-body">${fw.body}</div>
+      <div class="final-questions">
+        <div class="final-q-label">something to sit with ✦</div>
+        ${fqs}
+      </div>
+    </div>
+    <div class="download-section">
+      <div class="dl-title">share your results 💌</div>
+      <div class="dl-sub">Download a shareable card to send to your partner or post wherever you like. Made with love (and data).</div>
+      <button class="btn-download" onclick="downloadReport()">📥 download report card</button>
+      <div class="dl-hint" id="dlHint">generating your card... this takes a second</div>
+    </div>
+    <button class="restart-btn" onclick="location.reload()">start over ↺</button>
+  `;
+
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{
+    document.querySelectorAll('.ll-bar').forEach(b=>{b.style.width=b.dataset.pct+'%';});
+  },400);
+}
+
+/* ── DOWNLOADABLE REPORT CARD ── */
+function downloadReport(){
+  const btn=document.querySelector('.btn-download');
+  btn.disabled=true;
+  btn.textContent='⏳ generating...';
+
+  const canvas=document.getElementById('reportCanvas');
+  canvas.style.display='block';
+  const W=800,H=1100;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  const avgs=finalAvgs;
+  const ov=overall(avgs);
+  const rat=getRating(ov);
+
+  /* background */
+  ctx.fillStyle='#FFF8FC';
+  ctx.fillRect(0,0,W,H);
+
+  /* top gradient strip */
+  const grd=ctx.createLinearGradient(0,0,W,320);
+  grd.addColorStop(0,'#FF6B9D');
+  grd.addColorStop(1,'#FF8FAB');
+  ctx.fillStyle=grd;
+  ctx.beginPath();
+  ctx.moveTo(0,0);ctx.lineTo(W,0);ctx.lineTo(W,280);
+  ctx.quadraticCurveTo(W/2,340,0,280);
+  ctx.fill();
+
+  /* ── HEART MASCOT using Path2D from exact SVG coords ──
+     SVG viewBox: 0 0 310 290, heart path from the live mascot SVG.
+     We scale it to fit ~170px wide centred at W/2, top at y=28. */
+  (function drawMascot(){
+    // Scale & translate: SVG is 310 wide, we want ~170px → scale = 170/310
+    const scale = 170/310;
+    const svgW = 310, svgH = 290;
+    const drawW = svgW * scale;   // 170
+    const drawH = svgH * scale;   // ~159
+    const tx = W/2 - drawW/2;     // left edge x so heart is centred
+    const ty = 22;                 // top edge y
+
+    ctx.save();
+    ctx.translate(tx, ty);
+    ctx.scale(scale, scale);
+
+    // Drop shadow behind heart
+    ctx.shadowColor = 'rgba(200,50,100,0.18)';
+    ctx.shadowBlur  = 22;
+    ctx.shadowOffsetY = 10;
+
+    // Heart body — exact path from the SVG mascot:
+    // M155,264 C155,264 65,208 37,170 C9,132 13,78 49,62 C79,48 113,66 133,94
+    // C139,104 145,118 155,136 C165,118 171,104 177,94
+    // C197,66 231,48 261,62 C297,78 301,132 273,170
+    // C245,208 155,264 155,264 Z
+    const heart = new Path2D(
+      'M155,264 C155,264 65,208 37,170 C9,132 13,78 49,62 C79,48 113,66 133,94 C139,104 145,118 155,136 C165,118 171,104 177,94 C197,66 231,48 261,62 C297,78 301,132 273,170 C245,208 155,264 155,264 Z'
+    );
+    ctx.fillStyle = 'white';
+    ctx.fill(heart);
+    ctx.restore();
+
+    // ── Face elements — all in final canvas coords ──
+    // Heart SVG centre-x=155, scale to canvas: 155*scale + tx
+    // Reference points from SVG (scaled):
+    const scx = 155*scale + tx;  // heart horizontal centre in canvas px
+
+    // Top of heart inner area ≈ SVG y=100 → canvas y = 100*scale + ty
+    // Eyes were at SVG cx=112,cy=138  and cx=196,cy=138
+    const eyeLX = 112*scale + tx;
+    const eyeRX = 196*scale + tx;
+    const eyeY  = 134*scale + ty;
+    const eyeRx = 15*scale;
+    const eyeRy = 17*scale;
+
+    // Eye whites
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.ellipse(eyeLX, eyeY, eyeRx, eyeRy, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(eyeRX, eyeY, eyeRx, eyeRy, 0, 0, Math.PI*2); ctx.fill();
+
+    // Pupils
+    ctx.fillStyle = '#2D1218';
+    ctx.beginPath(); ctx.ellipse(eyeLX+3*scale, eyeY+2*scale, 9*scale, 11*scale, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(eyeRX+3*scale, eyeY+2*scale, 9*scale, 11*scale, 0, 0, Math.PI*2); ctx.fill();
+
+    // Glints
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(eyeLX+6*scale, eyeY-4*scale, 3.5*scale, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(eyeRX+6*scale, eyeY-4*scale, 3.5*scale, 0, Math.PI*2); ctx.fill();
+
+    // Cheek blush — SVG: ellipse cx=84,cy=165 and cx=224,cy=165
+    ctx.fillStyle = 'rgba(255,158,196,0.42)';
+    ctx.beginPath(); ctx.ellipse(84*scale+tx,  165*scale+ty, 14*scale, 8*scale, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(224*scale+tx, 165*scale+ty, 14*scale, 8*scale, 0, 0, Math.PI*2); ctx.fill();
+
+    // Smile — SVG: M128,182 Q155,200 182,182
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 4.5*scale;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(128*scale+tx, 182*scale+ty);
+    ctx.quadraticCurveTo(155*scale+tx, 200*scale+ty, 182*scale+tx, 182*scale+ty);
+    ctx.stroke();
+
+    // Bar chart on chest — SVG: rects at x=130,146,162,178 varying heights
+    const bars=[{x:130,y:210,w:11,h:24,o:0.38},{x:146,y:202,w:11,h:32,o:0.58},
+                {x:162,y:193,w:11,h:41,o:0.9},{x:178,y:206,w:11,h:28,o:0.50}];
+    bars.forEach(b=>{
+      ctx.fillStyle=`rgba(255,107,157,${b.o})`;
+      roundRect(ctx, b.x*scale+tx, b.y*scale+ty, b.w*scale, b.h*scale, 2);
+      ctx.fill();
+    });
+  })();
+
+  /* wordmark — heart bottom ≈ y=167, add padding */
+  ctx.fillStyle='white';
+  ctx.font='bold 40px Fredoka, Georgia, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('heartlytics', W/2, 200);
+  ctx.font='500 15px Fredoka, Georgia, sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.82)';
+  ctx.fillText(`love check-in for ${partnerName}`, W/2, 224);
+
+  /* overall score */
+  ctx.fillStyle='#2D1218';
+  ctx.font='bold 13px Fredoka, Georgia, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillStyle='#A07868';
+  ctx.fillText('OVERALL LOVE SCORE',W/2,340);
+  ctx.fillStyle='#FF6B9D';
+  ctx.font='bold 80px Fredoka, Georgia, sans-serif';
+  ctx.fillText(ov.toFixed(1),W/2,420);
+  ctx.fillStyle='#2D1218';
+  ctx.font='bold 22px Fredoka, Georgia, sans-serif';
+  ctx.fillText(rat.label,W/2,455);
+
+  /* divider */
+  ctx.strokeStyle='#FDDAEC';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(80,475);ctx.lineTo(W-80,475);ctx.stroke();
+
+  /* LL scores */
+  const cols=['#FF6B9D','#FF8C69','#FFB347','#6BCB77','#C77DFF'];
+  let yy=510;
+  LANGS.forEach((lang,i)=>{
+    const a=avgs[lang.key];
+    const pct=a/5;
+    const r=getRating(a);
+
+    /* icon + name */
+    ctx.fillStyle='#2D1218';
+    ctx.font='bold 16px Fredoka, Georgia, sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText(`${lang.icon}  ${lang.name}`,80,yy);
+
+    /* score */
+    ctx.fillStyle=lang.color;
+    ctx.font='bold 18px Fredoka, Georgia, sans-serif';
+    ctx.textAlign='right';
+    ctx.fillText(a.toFixed(1),W-80,yy);
+
+    /* rating */
+    ctx.fillStyle=r.color;
+    ctx.font='500 12px Fredoka, Georgia, sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText(r.label,80,yy+18);
+
+    /* bar bg */
+    ctx.fillStyle='#FDDAEC';
+    roundRect(ctx,80,yy+26,W-160,8,4);ctx.fill();
+    /* bar fill */
+    ctx.fillStyle=lang.color;
+    if((W-160)*pct>0){roundRect(ctx,80,yy+26,(W-160)*pct,8,4);ctx.fill();}
+
+    yy+=72;
+  });
+
+  /* footer */
+  ctx.fillStyle='rgba(160,120,136,0.6)';
+  ctx.font='500 12px Fredoka, Georgia, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('made with heartlytics ♥  •  a love check-in',W/2,H-40);
+
+  /* decorative dots */
+  [{x:60,y:490,r:5,c:'#FFB347'},{x:W-55,y:500,r:4,c:'#FF6B9D'},{x:65,y:H-70,r:6,c:'#C77DFF'},{x:W-60,y:H-60,r:4,c:'#6BCB77'}].forEach(d=>{
+    ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+    ctx.fillStyle=d.c;ctx.globalAlpha=0.5;ctx.fill();ctx.globalAlpha=1;
+  });
+
+  setTimeout(()=>{
+    const link=document.createElement('a');
+    link.download=`heartlytics-${partnerName.replace(/\s+/g,'-').toLowerCase()}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    canvas.style.display='none';
+    btn.disabled=false;
+    btn.innerHTML='📥 download report card';
+    document.getElementById('dlHint').textContent='saved! share it with love 💌';
+  },200);
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+</script>
+</body>
+</html>
